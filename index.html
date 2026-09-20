@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Space Defender 3D - 太空守卫者</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- 3D 画布 -->
+  <canvas id="game-canvas"></canvas>
+
+  <!-- HUD：分数 / 生命 -->
+  <div id="hud" class="hidden">
+    <div class="hud-left">
+      <div class="hud-item">
+        <span class="hud-label">分数</span>
+        <span id="score">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">关卡</span>
+        <span id="level">1</span>
+      </div>
+    </div>
+    <div class="hud-right">
+      <div class="hud-item">
+        <span class="hud-label">生命</span>
+        <span id="lives">♥♥♥</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 开始界面 -->
+  <div id="start-screen" class="overlay">
+    <div class="panel">
+      <h1>SPACE DEFENDER <span class="accent">3D</span></h1>
+      <p class="subtitle">太空守卫者 · 手搓 3D 射击小游戏</p>
+      <div class="controls">
+        <div><kbd>W A S D</kbd> 移动飞船</div>
+        <div><kbd>鼠标移动</kbd> 瞄准方向</div>
+        <div><kbd>空格</kbd> 发射子弹</div>
+        <div><kbd>P</kbd> 暂停游戏</div>
+      </div>
+      <p class="tip">击落敌机 <b>+100</b> 分，收集星星 <b>+50</b> 分，小心陨石！</p>
+      <button id="start-btn" class="btn">开始游戏</button>
+    </div>
+  </div>
+
+  <!-- 游戏结束界面 -->
+  <div id="gameover-screen" class="overlay hidden">
+    <div class="panel">
+      <h1>GAME OVER</h1>
+      <p class="subtitle">最终得分：<span id="final-score" class="accent">0</span></p>
+      <p class="tip">你坚持到了第 <span id="final-level">1</span> 关</p>
+      <button id="restart-btn" class="btn">再来一局</button>
+    </div>
+  </div>
+
+  <!-- 暂停界面 -->
+  <div id="pause-screen" class="overlay hidden">
+    <div class="panel">
+      <h1>PAUSED</h1>
+      <p class="subtitle">按 P 继续游戏</p>
+    </div>
+  </div>
+
+  <!-- Three.js 从 CDN 加载（兼容旧版 API） -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+
+  <!-- 游戏主逻辑 -->
+  <script src="js/game.js"></script>
+</body>
+</html>
