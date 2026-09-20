@@ -42,16 +42,26 @@
   <!-- 移动端虚拟控制：右下射击按钮 -->
   <button id="fire-btn" class="touch-btn hidden">🔥</button>
 
-  <!-- 开始界面 -->
+  <!-- 开始界面：难度选择 -->
   <div id="start-screen" class="overlay">
     <div class="panel">
       <h1>SPACE DEFENDER <span class="accent">3D</span></h1>
-      <p class="subtitle">太空守卫者 · 横屏射击</p>
-      <div class="controls">
-        <div class="pc-only"><kbd>WASD</kbd> 移动 &nbsp;<kbd>空格</kbd> 射击 &nbsp;<kbd>P</kbd> 暂停</div>
-        <div class="mobile-only">📱 左下拖动移动 · 右下按钮射击</div>
+      <p class="subtitle">太空守卫者 · 选择难度</p>
+      <div class="difficulty-select">
+        <button class="diff-btn selected" data-diff="normal">
+          <span class="diff-name">普通</span>
+          <span class="diff-desc">标准速度 · 3条命</span>
+        </button>
+        <button class="diff-btn" data-diff="hard">
+          <span class="diff-name">困难</span>
+          <span class="diff-desc">敌机更快 · 3条命</span>
+        </button>
+        <button class="diff-btn" data-diff="hell">
+          <span class="diff-name">地狱</span>
+          <span class="diff-desc">超快超多 · 2条命</span>
+        </button>
       </div>
-      <p class="tip">击落敌机 <b>+100</b> · 收集星星 <b>+50</b> · 躲陨石</p>
+      <p class="tip">击落敌机 +100 · 收集星星 +50</p>
       <button id="start-btn" class="btn">开始游戏</button>
     </div>
   </div>
