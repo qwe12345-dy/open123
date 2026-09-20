@@ -14,7 +14,7 @@
   // ---------- 全局状态 ----------
   let scene, camera, renderer;
   let player;
-  const objects = { playerShip: null, cockpitDome: null, enemyRock: null, bullet: null, star: null, asteroid: null };
+  const objects = { playerShip: null, enemyRock: null, bullet: null, star: null, asteroid: null };
 
   const bullets = [], enemies = [], stars = [], asteroids = [], explosions = [];
   const stars_bg = [];
@@ -165,27 +165,24 @@
       const total = 5;
       const done = () => { if (++loaded === total) resolve(); };
 
-      // 玩家机身：白色
-      loader.load('models/player_ship.obj', (obj) => {
+      // 玩家飞船：airplane 模型，加载后自动居中缩放
+      loader.load('models/airplane.obj', (obj) => {
+        const box = new THREE.Box3();
+        box.setFromObject(obj);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+        obj.position.sub(center);
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const scale = 4 / maxDim;
+        obj.scale.set(scale, scale, scale);
+        obj.rotation.y = Math.PI; // 机头朝 +z（敌机飞来方向）
         obj.traverse((c) => {
           if (c.isMesh) c.material = new THREE.MeshStandardMaterial({
-            color: 0xffffff, emissive: 0x333333, emissiveIntensity: 0.3,
-            metalness: 0.6, roughness: 0.3,
+            color: 0xdddddd, emissive: 0x222222, emissiveIntensity: 0.3,
+            metalness: 0.6, roughness: 0.4,
           });
         });
         objects.playerShip = obj;
-        done();
-      }, undefined, done);
-
-      // 驾驶舱穹顶：蓝色透明发光
-      loader.load('models/cockpit_dome.obj', (obj) => {
-        obj.traverse((c) => {
-          if (c.isMesh) c.material = new THREE.MeshStandardMaterial({
-            color: 0x0088ff, emissive: 0x00aaff, emissiveIntensity: 0.8,
-            transparent: true, opacity: 0.75, metalness: 0.1, roughness: 0.1,
-          });
-        });
-        objects.cockpitDome = obj;
         done();
       }, undefined, done);
 
@@ -241,13 +238,7 @@
 
   function createPlayer() {
     player = objects.playerShip.clone();
-    player.scale.set(1.2, 1.2, 1.2);
     player.position.set(0, 0, -10);
-    // 把蓝色驾驶舱穹顶加到飞船顶部
-    const dome = objects.cockpitDome.clone();
-    dome.position.set(0, 0.45, 0.5); // 放在机身顶部
-    dome.scale.set(0.9, 0.9, 0.9);
-    player.add(dome);
     scene.add(player);
   }
 
@@ -258,7 +249,7 @@
     const e = objects.enemyRock.clone();
     const s = 0.8 + Math.random() * 0.6;
     e.scale.set(s, s, s);
-    e.position.set((Math.random() - 0.5) * 30, (Math.random() - 0.5) * 14, 60 + Math.random() * 20);
+    e.position.set((Math.random() - 0.5) * 25, (Math.random() - 0.5) * 8, 60 + Math.random() * 20);
     e.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
     scene.add(e);
     enemies.push({ mesh: e, speed: ENEMY_SPEED + level * 0.02 + Math.random() * 0.05, drift: (Math.random() - 0.5) * 0.02 });
@@ -328,9 +319,13 @@
     if (keys['KeyD'] || keys['ArrowRight']) mx += 1;
     mx += touchMoveX;
     my += touchMoveY;
-    // 鼠标瞄准偏移（PC端）
-    mx += mouseX; my += mouseY;
-    mouseX *= 0.9; mouseY *= 0.9;
+    // 鼠标瞄准偏移（仅PC端）
+    if (!isTouchDevice) {
+      mx += mouseX;
+      my += mouseY;
+      mouseX *= 0.9;
+      mouseY *= 0.9;
+    }
 
     const mag = Math.sqrt(mx * mx + my * my);
     if (mag > 1) { mx /= mag; my /= mag; }
@@ -370,7 +365,7 @@
         scene.remove(e.mesh); enemies.splice(i, 1); damagePlayer(); continue;
       }
       for (let j = bullets.length - 1; j >= 0; j--) {
-        if (dist(bullets[j].mesh.position, e.mesh.position) < 1.5) {
+        if (dist(bullets[j].mesh.position, e.mesh.position) < 2.5) {
           scene.remove(bullets[j].mesh); bullets.splice(j, 1);
           scene.remove(e.mesh); enemies.splice(i, 1);
           spawnExplosion(e.mesh.position, 0xff4466);
@@ -508,7 +503,7 @@
     });
     window.addEventListener('keyup', (e) => { keys[e.code] = false; });
 
-    // 鼠标（PC端）
+    // 鼠标（仅PC端，手机端禁用避免漂移）
     window.addEventListener('mousemove', (e) => {
       if (!isTouchDevice) {
         mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
@@ -516,55 +511,90 @@
       }
     });
 
-    // ----- 虚拟摇杆 -----
-    let joystickId = null;
+    // ----- 虚拟摇杆（绑到document，手指移出区域也能跟踪） -----
+    let joystickTouchId = null;
+    let joystickOriginX = 0;
+    let joystickOriginY = 0;
     const ZONE_RADIUS = 50;
 
-    function joystickStart(e) {
-      if (joystickId !== null) return;
-      const t = e.changedTouches ? e.changedTouches[0] : e;
-      joystickId = t.identifier !== undefined ? t.identifier : 'mouse';
-      updateJoystick(t.clientX, t.clientY);
+    function joystickStart(cx, cy, touchId) {
+      joystickTouchId = touchId;
+      joystickOriginX = cx;
+      joystickOriginY = cy;
+      updateJoystick(cx, cy);
     }
-    function joystickMove(e) {
-      if (joystickId === null) return;
-      const touches = e.changedTouches || [e];
-      for (let i = 0; i < touches.length; i++) {
-        if (touches[i].identifier === joystickId || (joystickId === 'mouse' && touches[i].type === 'mousemove')) {
-          updateJoystick(touches[i].clientX, touches[i].clientY);
-          break;
-        }
-      }
-    }
-    function joystickEnd(e) {
-      joystickId = null;
-      touchMoveX = 0; touchMoveY = 0;
-      joystickKnob.style.transform = 'translate(0px, 0px)';
-    }
-    function updateJoystick(cx, cy) {
-      const rect = joystickZone.getBoundingClientRect();
-      const cx0 = rect.left + rect.width / 2;
-      const cy0 = rect.top + rect.height / 2;
-      let dx = cx - cx0, dy = cy - cy0;
+
+    function joystickMove(cx, cy) {
+      if (joystickTouchId === null) return;
+      let dx = cx - joystickOriginX;
+      let dy = cy - joystickOriginY;
       const dist = Math.sqrt(dx * dx + dy * dy);
       if (dist > ZONE_RADIUS) {
         dx = dx / dist * ZONE_RADIUS;
         dy = dy / dist * ZONE_RADIUS;
       }
+      // 向右拖 dx>0 -> 飞机x增加（向右）
+      // 向上拖 dy<0 -> 飞机y增加（向上）
       touchMoveX = dx / ZONE_RADIUS;
       touchMoveY = -dy / ZONE_RADIUS;
       joystickKnob.style.transform = `translate(${dx}px, ${dy}px)`;
     }
 
-    joystickZone.addEventListener('touchstart', (e) => { e.preventDefault(); joystickStart(e); });
-    joystickZone.addEventListener('touchmove', (e) => { e.preventDefault(); joystickMove(e); });
-    joystickZone.addEventListener('touchend', (e) => { e.preventDefault(); joystickEnd(e); });
-    joystickZone.addEventListener('touchcancel', joystickEnd);
+    function joystickEnd() {
+      joystickTouchId = null;
+      touchMoveX = 0;
+      touchMoveY = 0;
+      joystickKnob.style.transform = 'translate(0px, 0px)';
+    }
 
-    // PC端鼠标也能用摇杆区（测试用）
-    joystickZone.addEventListener('mousedown', joystickStart);
-    window.addEventListener('mousemove', joystickMove);
-    window.addEventListener('mouseup', joystickEnd);
+    // touch事件绑在document上，保证手指滑出摇杆区也能继续跟踪
+    document.addEventListener('touchstart', (e) => {
+      for (const t of e.changedTouches) {
+        // 判断touch是否在摇杆区域内
+        const rect = joystickZone.getBoundingClientRect();
+        if (t.clientX >= rect.left - 20 && t.clientX <= rect.right + 20 &&
+            t.clientY >= rect.top - 20 && t.clientY <= rect.bottom + 20) {
+          if (joystickTouchId === null) {
+            e.preventDefault();
+            joystickStart(t.clientX, t.clientY, t.identifier);
+          }
+        }
+      }
+    }, { passive: false });
+
+    document.addEventListener('touchmove', (e) => {
+      if (joystickTouchId !== null) {
+        for (const t of e.changedTouches) {
+          if (t.identifier === joystickTouchId) {
+            e.preventDefault();
+            joystickMove(t.clientX, t.clientY);
+          }
+        }
+      }
+    }, { passive: false });
+
+    document.addEventListener('touchend', (e) => {
+      for (const t of e.changedTouches) {
+        if (t.identifier === joystickTouchId) {
+          joystickEnd();
+        }
+      }
+    });
+    document.addEventListener('touchcancel', joystickEnd);
+
+    // PC端鼠标也能用摇杆
+    let mouseDown = false;
+    joystickZone.addEventListener('mousedown', (e) => {
+      mouseDown = true;
+      joystickStart(e.clientX, e.clientY, 'mouse');
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (mouseDown) joystickMove(e.clientX, e.clientY);
+    });
+    window.addEventListener('mouseup', () => {
+      mouseDown = false;
+      joystickEnd();
+    });
 
     // ----- 射击按钮 -----
     function fireStart(e) { e.preventDefault(); keys['Space'] = true; }
