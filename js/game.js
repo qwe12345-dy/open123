@@ -14,7 +14,7 @@
   // ---------- 全局状态 ----------
   let scene, camera, renderer;
   let player;
-  const objects = { playerShip: null, enemyShip: null, bullet: null, star: null, asteroid: null };
+  const objects = { playerShip: null, cockpitDome: null, enemyRock: null, bullet: null, star: null, asteroid: null };
 
   const bullets = [], enemies = [], stars = [], asteroids = [], explosions = [];
   const stars_bg = [];
@@ -161,28 +161,81 @@
   function loadModels() {
     return new Promise((resolve) => {
       const loader = new THREE.OBJLoader();
-      const tasks = [
-        ['playerShip', 'models/player_ship.obj', 0x00aaff],
-        ['enemyShip', 'models/enemy_ship.obj', 0xff4466],
-        ['bullet', 'models/bullet.obj', 0xffff00],
-        ['star', 'models/star.obj', 0xffdd00],
-        ['asteroid', 'models/asteroid.obj', 0x888888],
-      ];
       let loaded = 0;
-      tasks.forEach(([key, url, color]) => {
-        loader.load(url, (obj) => {
-          obj.traverse((child) => {
-            if (child.isMesh) {
-              child.material = new THREE.MeshStandardMaterial({
-                color, emissive: color, emissiveIntensity: 0.4,
-                metalness: 0.3, roughness: 0.5,
-              });
-            }
+      const total = 5;
+      const done = () => { if (++loaded === total) resolve(); };
+
+      // 玩家机身：白色
+      loader.load('models/player_ship.obj', (obj) => {
+        obj.traverse((c) => {
+          if (c.isMesh) c.material = new THREE.MeshStandardMaterial({
+            color: 0xffffff, emissive: 0x333333, emissiveIntensity: 0.3,
+            metalness: 0.6, roughness: 0.3,
           });
-          objects[key] = obj;
-          if (++loaded === tasks.length) resolve();
-        }, undefined, () => { if (++loaded === tasks.length) resolve(); });
-      });
+        });
+        objects.playerShip = obj;
+        done();
+      }, undefined, done);
+
+      // 驾驶舱穹顶：蓝色透明发光
+      loader.load('models/cockpit_dome.obj', (obj) => {
+        obj.traverse((c) => {
+          if (c.isMesh) c.material = new THREE.MeshStandardMaterial({
+            color: 0x0088ff, emissive: 0x00aaff, emissiveIntensity: 0.8,
+            transparent: true, opacity: 0.75, metalness: 0.1, roughness: 0.1,
+          });
+        });
+        objects.cockpitDome = obj;
+        done();
+      }, undefined, done);
+
+      // 敌机：圆形陨石，红色发光
+      loader.load('models/enemy_rock.obj', (obj) => {
+        obj.traverse((c) => {
+          if (c.isMesh) c.material = new THREE.MeshStandardMaterial({
+            color: 0xff4466, emissive: 0xff2244, emissiveIntensity: 0.5,
+            metalness: 0.2, roughness: 0.7,
+          });
+        });
+        objects.enemyRock = obj;
+        done();
+      }, undefined, done);
+
+      // 子弹
+      loader.load('models/bullet.obj', (obj) => {
+        obj.traverse((c) => {
+          if (c.isMesh) c.material = new THREE.MeshStandardMaterial({
+            color: 0xffff00, emissive: 0xffff00, emissiveIntensity: 0.8,
+            metalness: 0.3, roughness: 0.5,
+          });
+        });
+        objects.bullet = obj;
+        done();
+      }, undefined, done);
+
+      // 星星
+      loader.load('models/star.obj', (obj) => {
+        obj.traverse((c) => {
+          if (c.isMesh) c.material = new THREE.MeshStandardMaterial({
+            color: 0xffdd00, emissive: 0xffdd00, emissiveIntensity: 0.5,
+            metalness: 0.3, roughness: 0.5,
+          });
+        });
+        objects.star = obj;
+        done();
+      }, undefined, done);
+
+      // 背景陨石
+      loader.load('models/asteroid.obj', (obj) => {
+        obj.traverse((c) => {
+          if (c.isMesh) c.material = new THREE.MeshStandardMaterial({
+            color: 0x888888, emissive: 0x333333, emissiveIntensity: 0.2,
+            metalness: 0.2, roughness: 0.8,
+          });
+        });
+        objects.asteroid = obj;
+        done();
+      }, undefined, done);
     });
   }
 
@@ -190,6 +243,11 @@
     player = objects.playerShip.clone();
     player.scale.set(1.2, 1.2, 1.2);
     player.position.set(0, 0, -10);
+    // 把蓝色驾驶舱穹顶加到飞船顶部
+    const dome = objects.cockpitDome.clone();
+    dome.position.set(0, 0.45, 0.5); // 放在机身顶部
+    dome.scale.set(0.9, 0.9, 0.9);
+    player.add(dome);
     scene.add(player);
   }
 
@@ -197,10 +255,11 @@
   // 生成
   // ============================================================
   function spawnEnemy() {
-    const e = objects.enemyShip.clone();
-    e.scale.set(1.0 + Math.random() * 0.5, 1.0 + Math.random() * 0.5, 1.0);
+    const e = objects.enemyRock.clone();
+    const s = 0.8 + Math.random() * 0.6;
+    e.scale.set(s, s, s);
     e.position.set((Math.random() - 0.5) * 30, (Math.random() - 0.5) * 14, 60 + Math.random() * 20);
-    e.rotation.y = Math.PI;
+    e.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
     scene.add(e);
     enemies.push({ mesh: e, speed: ENEMY_SPEED + level * 0.02 + Math.random() * 0.05, drift: (Math.random() - 0.5) * 0.02 });
   }
@@ -305,7 +364,8 @@
       const e = enemies[i];
       e.mesh.position.z -= e.speed;
       e.mesh.position.x += e.drift;
-      e.mesh.rotation.z += 0.02;
+      e.mesh.rotation.x += 0.01;
+      e.mesh.rotation.y += 0.015;
       if (e.mesh.position.z < player.position.z - 5) {
         scene.remove(e.mesh); enemies.splice(i, 1); damagePlayer(); continue;
       }
