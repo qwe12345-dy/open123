@@ -239,6 +239,18 @@
   function createPlayer() {
     player = objects.playerShip.clone();
     player.position.set(0, 0, -10);
+
+    // 蓝色驾驶舱窗户：小的半透明蓝色椭球体
+    const domeGeo = new THREE.SphereGeometry(0.35, 12, 8);
+    const domeMat = new THREE.MeshStandardMaterial({
+      color: 0x0088ff, emissive: 0x00aaff, emissiveIntensity: 0.6,
+      transparent: true, opacity: 0.7, metalness: 0.2, roughness: 0.1,
+    });
+    const dome = new THREE.Mesh(domeGeo, domeMat);
+    dome.scale.set(0.8, 0.6, 1.5); // 扁椭球
+    dome.position.set(0, 0.55, 0.3); // 机身顶部、机头后方
+    player.add(dome);
+
     scene.add(player);
   }
 
@@ -330,7 +342,8 @@
     const mag = Math.sqrt(mx * mx + my * my);
     if (mag > 1) { mx /= mag; my /= mag; }
 
-    player.position.x += mx * PLAYER_SPEED;
+    // 相机看向+z方向，世界x正方向=屏幕左边，所以x移动取反
+    player.position.x -= mx * PLAYER_SPEED;
     player.position.y += my * PLAYER_SPEED;
 
     player.position.x = Math.max(-BOUNDS_X, Math.min(BOUNDS_X, player.position.x));
