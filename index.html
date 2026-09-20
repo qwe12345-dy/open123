@@ -2,8 +2,12 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Space Defender 3D - 太空守卫者</title>
+  <!-- 手机横屏适配：禁止缩放、全屏、刘海屏适配 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="screen-orientation" content="landscape" />
+  <title>Space Defender 3D</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -30,18 +34,24 @@
     </div>
   </div>
 
+  <!-- 移动端虚拟控制：左下摇杆区 -->
+  <div id="joystick-zone" class="touch-zone hidden">
+    <div id="joystick-base"></div>
+    <div id="joystick-knob"></div>
+  </div>
+  <!-- 移动端虚拟控制：右下射击按钮 -->
+  <button id="fire-btn" class="touch-btn hidden">🔥</button>
+
   <!-- 开始界面 -->
   <div id="start-screen" class="overlay">
     <div class="panel">
       <h1>SPACE DEFENDER <span class="accent">3D</span></h1>
-      <p class="subtitle">太空守卫者 · 手搓 3D 射击小游戏</p>
+      <p class="subtitle">太空守卫者 · 横屏射击</p>
       <div class="controls">
-        <div><kbd>W A S D</kbd> 移动飞船</div>
-        <div><kbd>鼠标移动</kbd> 瞄准方向</div>
-        <div><kbd>空格</kbd> 发射子弹</div>
-        <div><kbd>P</kbd> 暂停游戏</div>
+        <div class="pc-only"><kbd>WASD</kbd> 移动 &nbsp;<kbd>空格</kbd> 射击 &nbsp;<kbd>P</kbd> 暂停</div>
+        <div class="mobile-only">📱 左下拖动移动 · 右下按钮射击</div>
       </div>
-      <p class="tip">击落敌机 <b>+100</b> 分，收集星星 <b>+50</b> 分，小心陨石！</p>
+      <p class="tip">击落敌机 <b>+100</b> · 收集星星 <b>+50</b> · 躲陨石</p>
       <button id="start-btn" class="btn">开始游戏</button>
     </div>
   </div>
@@ -50,8 +60,8 @@
   <div id="gameover-screen" class="overlay hidden">
     <div class="panel">
       <h1>GAME OVER</h1>
-      <p class="subtitle">最终得分：<span id="final-score" class="accent">0</span></p>
-      <p class="tip">你坚持到了第 <span id="final-level">1</span> 关</p>
+      <p class="subtitle">最终得分 <span id="final-score" class="accent">0</span></p>
+      <p class="tip">坚持到第 <span id="final-level">1</span> 关</p>
       <button id="restart-btn" class="btn">再来一局</button>
     </div>
   </div>
@@ -60,15 +70,19 @@
   <div id="pause-screen" class="overlay hidden">
     <div class="panel">
       <h1>PAUSED</h1>
-      <p class="subtitle">按 P 继续游戏</p>
+      <p class="subtitle">点击屏幕继续</p>
     </div>
   </div>
 
-  <!-- Three.js 从 CDN 加载（兼容旧版 API） -->
+  <!-- 竖屏旋转提示（仅手机竖屏时显示） -->
+  <div id="rotate-hint" class="rotate-overlay">
+    <div class="rotate-icon">📱</div>
+    <p>请旋转手机至横屏游玩</p>
+  </div>
+
+  <!-- Three.js -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
-
-  <!-- 游戏主逻辑 -->
   <script src="js/game.js"></script>
 </body>
 </html>
