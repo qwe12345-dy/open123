@@ -293,3 +293,58 @@ kbd {
   #joystick-knob { width: 38px; height: 38px; margin: -19px 0 0 -19px; }
   .touch-btn { width: 70px; height: 70px; bottom: 20px; right: 20px; font-size: 1.5rem; }
 }
+
+/* ---------- 难度选择 ---------- */
+.difficulty-select {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 15px 0;
+  flex-wrap: wrap;
+}
+
+.diff-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 20px;
+  border: 2px solid #00ffff;
+  background: rgba(0, 255, 255, 0.05);
+  color: #00ffff;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.diff-btn.selected {
+  background: #00ffff;
+  color: #000;
+  box-shadow: 0 0 15px #00ffff;
+}
+
+.diff-btn[data-diff="hard"].selected {
+  background: #ffaa00;
+  border-color: #ffaa00;
+  color: #000;
+  box-shadow: 0 0 15px #ffaa00;
+}
+
+.diff-btn[data-diff="hell"].selected {
+  background: #ff2244;
+  border-color: #ff2244;
+  color: #fff;
+  box-shadow: 0 0 15px #ff2244;
+}
+
+.diff-name {
+  font-size: 1.1rem;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+}
+
+.diff-desc {
+  font-size: 0.7rem;
+  margin-top: 4px;
+  opacity: 0.8;
+}
