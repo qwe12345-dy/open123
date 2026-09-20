@@ -19,6 +19,10 @@
   const bullets = [], enemies = [], stars = [], asteroids = [], explosions = [];
   const stars_bg = [];
 
+  // 音乐
+  let menuMusic = null, battleMusic = null;
+  let currentMusic = null;
+
   const keys = {};
   let touchMoveX = 0, touchMoveY = 0; // 摇杆输出 -1~1
   let mouseX = 0, mouseY = 0;
@@ -53,13 +57,33 @@
 
   let isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 
-  // ============================================================
-  // 初始化
-  // ============================================================
+  function initMusic() {
+    menuMusic = new Audio('audio/menu.mp3');
+    menuMusic.loop = true;
+    menuMusic.volume = 0.5;
+    battleMusic = new Audio('audio/battle.wav');
+    battleMusic.loop = true;
+    battleMusic.volume = 0.4;
+    // 主界面音乐需要用户交互后才能播放
+    document.addEventListener('click', () => {
+      if (gameState === 'menu' && currentMusic !== menuMusic) {
+        playMusic(menuMusic);
+      }
+    }, { once: true });
+  }
+
+  function playMusic(music) {
+    if (currentMusic === music) return;
+    if (currentMusic) currentMusic.pause();
+    currentMusic = music;
+    currentMusic.currentTime = 0;
+    currentMusic.play().catch(() => {});
+  }
   function init() {
     initThree();
     initLights();
     initBackground();
+    initMusic();
     bindEvents();
     loadModels().then(() => {
       createPlayer();
@@ -246,15 +270,29 @@
     player = objects.playerShip.clone();
     player.position.set(0, 0, -10);
 
-    // 蓝色驾驶舱窗户：小的半透明蓝色椭球体
+    // 蓝色驾驶舱窗户：顶部扁椭球
     const domeGeo = new THREE.SphereGeometry(0.35, 12, 8);
     const domeMat = new THREE.MeshBasicMaterial({
       color: 0x00aaff, transparent: true, opacity: 0.85,
     });
     const dome = new THREE.Mesh(domeGeo, domeMat);
-    dome.scale.set(0.8, 0.6, 1.5); // 扁椭球
-    dome.position.set(0, 0.55, 0.3); // 机身顶部、机头后方
+    dome.scale.set(0.8, 0.6, 1.5);
+    dome.position.set(0, 0.55, 0.3);
     player.add(dome);
+
+    // 机身两侧蓝色窗户：每隔一段距离一个小方块
+    const winGeo = new THREE.BoxGeometry(0.08, 0.12, 0.15);
+    const winMat = new THREE.MeshBasicMaterial({ color: 0x00aaff });
+    for (let z = -1.5; z <= 1.0; z += 0.25) {
+      // 左侧
+      const wl = new THREE.Mesh(winGeo, winMat);
+      wl.position.set(-0.32, 0.1, z);
+      player.add(wl);
+      // 右侧
+      const wr = new THREE.Mesh(winGeo, winMat);
+      wr.position.set(0.32, 0.1, z);
+      player.add(wr);
+    }
 
     scene.add(player);
   }
@@ -493,6 +531,7 @@
       joystickZone.classList.remove('hidden');
       fireBtn.classList.remove('hidden');
     }
+    playMusic(battleMusic);
   }
 
   function gameOver() {
@@ -503,6 +542,7 @@
     hud.classList.add('hidden');
     joystickZone.classList.add('hidden');
     fireBtn.classList.add('hidden');
+    playMusic(menuMusic);
   }
 
   function togglePause() {
