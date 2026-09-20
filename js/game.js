@@ -27,10 +27,19 @@
   let shootCooldown = 0, spawnTimer = 0, starSpawnTimer = 0, asteroidSpawnTimer = 0;
 
   let PLAYER_SPEED = 0.25;
-  const BULLET_SPEED = 0.6;
-  const ENEMY_SPEED = 0.08;
+  let BULLET_SPEED = 0.6;
+  let ENEMY_SPEED = 0.08;
+  let ENEMY_SPAWN_INTERVAL = 90;
   let BOUNDS_X = 12;
   let BOUNDS_Y = 7;
+
+  // 难度配置
+  let currentDifficulty = 'normal';
+  const DIFFICULTY = {
+    normal: { lives: 3, enemySpeed: 0.08, spawnInterval: 90, bulletSpeed: 0.6, label: '普通' },
+    hard:   { lives: 3, enemySpeed: 0.13, spawnInterval: 60, bulletSpeed: 0.55, label: '困难' },
+    hell:   { lives: 2, enemySpeed: 0.18, spawnInterval: 40, bulletSpeed: 0.5, label: '地狱' },
+  };
 
   // ---------- DOM ----------
   const $ = (id) => document.getElementById(id);
@@ -113,6 +122,8 @@
     camera.lookAt(0, 0, 10);
 
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.shadowMap.enabled = false;
+    renderer.setClearColor(0x000000, 1);
     applyRendererSize();
   }
 
@@ -177,21 +188,19 @@
         obj.scale.set(scale, scale, scale);
         obj.rotation.y = Math.PI; // 机头朝 +z（敌机飞来方向）
         obj.traverse((c) => {
-          if (c.isMesh) c.material = new THREE.MeshStandardMaterial({
-            color: 0xdddddd, emissive: 0x222222, emissiveIntensity: 0.3,
-            metalness: 0.6, roughness: 0.4,
+          if (c.isMesh) c.material = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
           });
         });
         objects.playerShip = obj;
         done();
       }, undefined, done);
 
-      // 敌机：圆形陨石，红色发光
+      // 敌机：圆形陨石，红色
       loader.load('models/enemy_rock.obj', (obj) => {
         obj.traverse((c) => {
-          if (c.isMesh) c.material = new THREE.MeshStandardMaterial({
-            color: 0xff4466, emissive: 0xff2244, emissiveIntensity: 0.5,
-            metalness: 0.2, roughness: 0.7,
+          if (c.isMesh) c.material = new THREE.MeshBasicMaterial({
+            color: 0xff3344,
           });
         });
         objects.enemyRock = obj;
@@ -201,9 +210,8 @@
       // 子弹
       loader.load('models/bullet.obj', (obj) => {
         obj.traverse((c) => {
-          if (c.isMesh) c.material = new THREE.MeshStandardMaterial({
-            color: 0xffff00, emissive: 0xffff00, emissiveIntensity: 0.8,
-            metalness: 0.3, roughness: 0.5,
+          if (c.isMesh) c.material = new THREE.MeshBasicMaterial({
+            color: 0xffff00,
           });
         });
         objects.bullet = obj;
@@ -213,9 +221,8 @@
       // 星星
       loader.load('models/star.obj', (obj) => {
         obj.traverse((c) => {
-          if (c.isMesh) c.material = new THREE.MeshStandardMaterial({
-            color: 0xffdd00, emissive: 0xffdd00, emissiveIntensity: 0.5,
-            metalness: 0.3, roughness: 0.5,
+          if (c.isMesh) c.material = new THREE.MeshBasicMaterial({
+            color: 0xffdd00,
           });
         });
         objects.star = obj;
@@ -225,9 +232,8 @@
       // 背景陨石
       loader.load('models/asteroid.obj', (obj) => {
         obj.traverse((c) => {
-          if (c.isMesh) c.material = new THREE.MeshStandardMaterial({
-            color: 0x888888, emissive: 0x333333, emissiveIntensity: 0.2,
-            metalness: 0.2, roughness: 0.8,
+          if (c.isMesh) c.material = new THREE.MeshBasicMaterial({
+            color: 0x666666,
           });
         });
         objects.asteroid = obj;
@@ -242,9 +248,8 @@
 
     // 蓝色驾驶舱窗户：小的半透明蓝色椭球体
     const domeGeo = new THREE.SphereGeometry(0.35, 12, 8);
-    const domeMat = new THREE.MeshStandardMaterial({
-      color: 0x0088ff, emissive: 0x00aaff, emissiveIntensity: 0.6,
-      transparent: true, opacity: 0.7, metalness: 0.2, roughness: 0.1,
+    const domeMat = new THREE.MeshBasicMaterial({
+      color: 0x00aaff, transparent: true, opacity: 0.85,
     });
     const dome = new THREE.Mesh(domeGeo, domeMat);
     dome.scale.set(0.8, 0.6, 1.5); // 扁椭球
@@ -355,7 +360,7 @@
     if (keys['Space']) shoot();
 
     spawnTimer--;
-    if (spawnTimer <= 0) { spawnEnemy(); spawnTimer = Math.max(30, 90 - level * 8); }
+    if (spawnTimer <= 0) { spawnEnemy(); spawnTimer = Math.max(20, ENEMY_SPAWN_INTERVAL - level * 5); }
     starSpawnTimer--;
     if (starSpawnTimer <= 0) { spawnStar(); starSpawnTimer = 200 + Math.random() * 150; }
     asteroidSpawnTimer--;
@@ -467,7 +472,15 @@
   function startGame() {
     [...bullets, ...enemies, ...stars, ...asteroids].forEach(o => scene.remove(o.mesh));
     bullets.length = enemies.length = stars.length = asteroids.length = 0;
-    score = 0; lives = 3; level = 1;
+    score = 0; level = 1;
+
+    // 根据难度设置参数
+    const diff = DIFFICULTY[currentDifficulty];
+    lives = diff.lives;
+    ENEMY_SPEED = diff.enemySpeed;
+    ENEMY_SPAWN_INTERVAL = diff.spawnInterval;
+    BULLET_SPEED = diff.bulletSpeed;
+
     shootCooldown = 0; spawnTimer = 30; starSpawnTimer = 150; asteroidSpawnTimer = 100;
     player.position.set(0, 0, -10);
     updateHUD();
@@ -620,6 +633,15 @@
 
     // 暂停界面点击继续
     $('pause-screen').addEventListener('click', togglePause);
+
+    // 难度选择
+    document.querySelectorAll('.diff-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        currentDifficulty = btn.dataset.diff;
+      });
+    });
 
     $('start-btn').addEventListener('click', startGame);
     $('restart-btn').addEventListener('click', startGame);
