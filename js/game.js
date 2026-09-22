@@ -84,10 +84,45 @@
     initLights();
     initBackground();
     initMusic();
+    initPrivacy();
     bindEvents();
     loadModels().then(() => {
       createPlayer();
       animate();
+    });
+  }
+
+  // 隐私政策弹窗：5秒倒计时后才能同意
+  function initPrivacy() {
+    const overlay = $('privacy-overlay');
+    const acceptBtn = $('privacy-accept');
+    const declineBtn = $('privacy-decline');
+    const countdownEl = $('privacy-countdown');
+    let seconds = 5;
+
+    acceptBtn.disabled = true;
+    countdownEl.textContent = `同意并进入（${seconds}）`;
+
+    const timer = setInterval(() => {
+      seconds--;
+      if (seconds > 0) {
+        countdownEl.textContent = `同意并进入（${seconds}）`;
+      } else {
+        clearInterval(timer);
+        acceptBtn.disabled = false;
+        countdownEl.textContent = '同意并进入';
+      }
+    }, 1000);
+
+    acceptBtn.addEventListener('click', () => {
+      if (acceptBtn.disabled) return;
+      overlay.style.display = 'none';
+      // 用户同意后播放主界面音乐
+      playMusic(menuMusic);
+    });
+
+    declineBtn.addEventListener('click', () => {
+      overlay.innerHTML = '<div class="privacy-panel" style="text-align:center;"><h2>无法进入游戏</h2><p style="color:#aaa;margin:20px 0;">您需要同意隐私政策才能游玩。<br>请刷新页面重新选择。</p></div>';
     });
   }
 
