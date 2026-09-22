@@ -117,7 +117,8 @@
     acceptBtn.addEventListener('click', () => {
       if (acceptBtn.disabled) return;
       overlay.style.display = 'none';
-      // 用户同意后播放主界面音乐
+      // 同意后才显示主界面（难度选择）
+      $('start-screen').classList.remove('hidden');
       playMusic(menuMusic);
     });
 
