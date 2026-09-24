@@ -48,6 +48,16 @@ html, body {
 
 .overlay.hidden { display: none; }
 
+/* 开始界面使用封面图作为背景 */
+#start-screen {
+  background: url('../cover.png') center center / cover no-repeat;
+  backdrop-filter: none;
+}
+#start-screen .panel {
+  background: rgba(0, 10, 25, 0.75);
+  backdrop-filter: blur(6px);
+}
+
 .panel {
   text-align: center;
   padding: 20px 40px;
@@ -292,4 +302,183 @@ kbd {
   .touch-zone { width: 90px; height: 90px; bottom: 15px; left: 15px; }
   #joystick-knob { width: 38px; height: 38px; margin: -19px 0 0 -19px; }
   .touch-btn { width: 70px; height: 70px; bottom: 20px; right: 20px; font-size: 1.5rem; }
+}
+
+/* ---------- 难度选择 ---------- */
+.difficulty-select {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 15px 0;
+  flex-wrap: wrap;
+}
+
+.diff-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 20px;
+  border: 2px solid #00ffff;
+  background: rgba(0, 255, 255, 0.05);
+  color: #00ffff;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.diff-btn.selected {
+  background: #00ffff;
+  color: #000;
+  box-shadow: 0 0 15px #00ffff;
+}
+
+.diff-btn[data-diff="hard"].selected {
+  background: #ffaa00;
+  border-color: #ffaa00;
+  color: #000;
+  box-shadow: 0 0 15px #ffaa00;
+}
+
+.diff-btn[data-diff="hell"].selected {
+  background: #ff2244;
+  border-color: #ff2244;
+  color: #fff;
+  box-shadow: 0 0 15px #ff2244;
+}
+
+.diff-name {
+  font-size: 1.1rem;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+}
+
+.diff-desc {
+  font-size: 0.7rem;
+  margin-top: 4px;
+  opacity: 0.8;
+}
+
+/* ---------- 隐私政策弹窗 ---------- */
+.privacy-overlay {
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.95);
+}
+
+.privacy-panel {
+  width: 90%;
+  max-width: 700px;
+  height: 90vh;
+  max-height: 90vh;
+  border: 1px solid #00ffff;
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+  background: rgba(0, 15, 30, 0.95);
+  border-radius: 8px;
+  padding: 20px 25px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.privacy-panel h2 {
+  text-align: center;
+  color: #00ffff;
+  font-size: 1.4rem;
+  letter-spacing: 0.2em;
+  margin-bottom: 5px;
+  flex-shrink: 0;
+}
+
+.privacy-update {
+  text-align: center;
+  font-size: 0.7rem;
+  color: #666;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.privacy-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: #bbb;
+  padding-right: 10px;
+  margin-bottom: 15px;
+  min-height: 0;
+}
+
+.privacy-content h3 {
+  color: #00ffff;
+  font-size: 0.9rem;
+  margin: 14px 0 6px;
+  letter-spacing: 0.05em;
+}
+
+.privacy-content p {
+  margin-bottom: 8px;
+}
+
+.privacy-content ul {
+  margin: 5px 0 8px 18px;
+}
+
+.privacy-content li {
+  margin-bottom: 5px;
+}
+
+.privacy-content b {
+  color: #fff;
+}
+
+.privacy-note {
+  text-align: center;
+  color: #00ffff;
+  font-size: 0.75rem;
+  margin-top: 12px;
+}
+
+.privacy-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-secondary {
+  border-color: #555;
+  color: #888;
+}
+
+.btn-secondary:hover {
+  background: #555;
+  color: #fff;
+  box-shadow: none;
+}
+
+#privacy-accept:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+#privacy-accept:disabled:hover {
+  background: transparent;
+  color: #00ffff;
+  box-shadow: none;
+}
+
+/* 小横屏适配 */
+@media (max-height: 500px) {
+  .privacy-panel {
+    padding: 10px 15px;
+    height: 96vh;
+    max-height: 96vh;
+  }
+  .privacy-panel h2 { font-size: 1rem; margin-bottom: 3px; }
+  .privacy-update { font-size: 0.6rem; margin-bottom: 6px; }
+  .privacy-content { font-size: 0.65rem; line-height: 1.45; margin-bottom: 8px; }
+  .privacy-content h3 { font-size: 0.75rem; margin: 6px 0 3px; }
+  .privacy-actions .btn { padding: 8px 20px; font-size: 0.8rem; margin-top: 0; }
 }
