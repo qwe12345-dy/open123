@@ -11,6 +11,72 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+  <!-- 隐私政策弹窗（首次进入，5秒倒计时） -->
+  <div id="privacy-overlay" class="overlay privacy-overlay">
+    <div class="privacy-panel">
+      <h2>隐私政策</h2>
+      <p class="privacy-update">更新日期：2026年9月22日 &nbsp;|&nbsp; 生效日期：2026年9月22日</p>
+      <div class="privacy-content" id="privacy-content">
+        <p>欢迎使用 <b>Space Defender 3D（射击游戏）可能游戏名字不一样！</b>（以下简称"本游戏"）。我们深知个人信息对您的重要性，并会尽全力保护您的个人信息安全可靠。请您在使用本游戏前，仔细阅读并充分理解本《隐私政策》的全部内容。你查看这个影视内容后，请阅读完后五秒才可以点击同意！</p>
+
+        <h3>一、我们收集的信息</h3>
+        <p>本游戏为纯前端网页游戏，<b>不设置用户注册、登录系统，不收集、不上传、不存储您的任何个人身份信息</b>（包括但不限于姓名、手机号、邮箱、身份证号、地理位置、通讯录、相册等）。</p>
+        <p>游戏运行过程中产生的所有数据（包括但不限于分数、生命值、关卡进度、难度选择）均仅保存在您当前设备的浏览器内存中，刷新或关闭页面后即被清除，不会发送至任何服务器。</p>
+
+        <h3>二、本地存储</h3>
+        <p>本游戏不使用 Cookie、localStorage、sessionStorage、IndexedDB 或任何其他形式的浏览器本地持久化存储来记录您的个人信息或游戏数据。所有游戏状态仅存在于当前页面会话的内存中。</p>
+
+        <h3>三、第三方服务</h3>
+        <p>本游戏通过公共 CDN（内容分发网络）加载以下第三方资源：</p>
+        <ul>
+          <li><b>Three.js</b>（由 jsDelivr CDN 提供）：用于 3D 图形渲染。当您加载游戏页面时，浏览器会向 CDN 服务器请求该 JavaScript 文件，CDN 服务器可能会记录您的 IP 地址和请求日志，具体隐私政策请参阅 jsDelivr 官方网站。</li>
+        </ul>
+        <p>除上述 CDN 资源加载外，本游戏不向任何第三方发送数据，不接入任何广告 SDK、统计分析 SDK、推送 SDK 或社交分享 SDK。</p>
+
+        <h3>四、音频播放</h3>
+        <p>本游戏包含背景音乐文件（主界面音乐与战斗音乐），这些音频文件随游戏页面一同从您所部署的静态托管服务器（如 GitHub Pages、Cloudflare Pages）加载，不会收集或传输您的任何信息。音频播放需要您在页面上进行首次点击交互后由浏览器自动触发，这是浏览器的自动播放策略要求。</p>
+
+        <h3>五、触摸与键盘输入</h3>
+        <p>本游戏在运行期间会监听您的键盘按键（WASD、方向键、空格键、P 键）和触摸屏操作（虚拟摇杆、射击按钮），这些输入事件仅在本地用于控制游戏角色，<b>不会被记录、保存或上传</b>。</p>
+
+        <h3>六、儿童隐私</h3>
+        <p>本游戏为通用娱乐内容，不针对 14 周岁以下的未成年人进行定向设计，也不会故意收集未成年人的个人信息。由于本游戏本身不收集任何个人信息，因此无需获得监护人同意。若监护人发现未成年人在未经同意的情况下使用本游戏，可直接关闭浏览器页面。</p>
+
+        <h3>七、您的权利</h3>
+        <p>根据适用的数据保护法律法规，您可能享有以下权利：</p>
+        <ul>
+          <li><b>知情权与访问权</b>：您有权了解我们如何处理您的信息。由于本游戏不收集个人信息，因此无数据可供访问。</li>
+          <li><b>删除权</b>：由于我们不存储您的任何数据，您无需请求删除。关闭或刷新浏览器页面即可清除所有临时游戏状态。</li>
+          <li><b>撤回同意权</b>：您可以随时通过关闭页面停止使用本游戏，即视为撤回同意。</li>
+          <li><b>拒绝权</b>：若您不同意本隐私政策，请点击"不同意"按钮或关闭页面，此时将无法进入游戏。</li>
+        </ul>
+
+        <h3>八、信息安全</h3>
+        <p>本游戏为纯静态网页应用，所有代码和资源文件均通过 HTTPS 协议传输（取决于您的部署方式），不包含后端服务器、数据库或用户账号系统，因此不存在数据泄露、数据库被入侵等风险。建议您通过官方或可信的托管平台访问本游戏。</p>
+
+        <h3>九、跨境数据传输</h3>
+        <p>本游戏本身不进行任何数据传输。若您通过 GitHub Pages 或 Cloudflare Pages 等海外平台访问，CDN 资源请求可能涉及跨境网络访问，这属于浏览器与 CDN 之间的标准网络通信，不涉及您的个人信息上传。</p>
+
+        <h3>十、隐私政策的更新</h3>
+        <p>我们可能会适时修订本隐私政策。当政策发生重大变更时，我们会在游戏启动页面重新展示本政策并要求您确认。您继续使用本游戏即表示同意受修订后的隐私政策约束。</p>
+
+        <h3>十一、联系我们</h3>
+        <p>如果您对本隐私政策有任何疑问、意见或建议，可通过以下方式联系：</p>
+        <ul>
+          <li>请在游戏部署所在的 GitHub 仓库提交 Issue；或</li>
+          <li>联系游戏部署者（即向您提供本游戏访问地址的个人或组织）。</li>
+        </ul>
+        <p class="privacy-note">本游戏为开源/免费娱乐项目，不涉及任何商业数据收集行为。</p>
+      </div>
+      <div class="privacy-actions">
+        <button id="privacy-decline" class="btn btn-secondary">不同意</button>
+        <button id="privacy-accept" class="btn" disabled>
+          <span id="privacy-countdown">同意并进入（5）</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- 3D 画布 -->
   <canvas id="game-canvas"></canvas>
 
@@ -42,16 +108,26 @@
   <!-- 移动端虚拟控制：右下射击按钮 -->
   <button id="fire-btn" class="touch-btn hidden">🔥</button>
 
-  <!-- 开始界面 -->
-  <div id="start-screen" class="overlay">
+  <!-- 开始界面：难度选择 -->
+  <div id="start-screen" class="overlay hidden">
     <div class="panel">
       <h1>SPACE DEFENDER <span class="accent">3D</span></h1>
-      <p class="subtitle">太空守卫者 · 横屏射击</p>
-      <div class="controls">
-        <div class="pc-only"><kbd>WASD</kbd> 移动 &nbsp;<kbd>空格</kbd> 射击 &nbsp;<kbd>P</kbd> 暂停</div>
-        <div class="mobile-only">📱 左下拖动移动 · 右下按钮射击</div>
+      <p class="subtitle">太空守卫者 · 选择难度</p>
+      <div class="difficulty-select">
+        <button class="diff-btn selected" data-diff="normal">
+          <span class="diff-name">普通</span>
+          <span class="diff-desc">标准速度 · 3条命</span>
+        </button>
+        <button class="diff-btn" data-diff="hard">
+          <span class="diff-name">困难</span>
+          <span class="diff-desc">敌机更快 · 3条命</span>
+        </button>
+        <button class="diff-btn" data-diff="hell">
+          <span class="diff-name">地狱</span>
+          <span class="diff-desc">超快超多 · 2条命</span>
+        </button>
       </div>
-      <p class="tip">击落敌机 <b>+100</b> · 收集星星 <b>+50</b> · 躲陨石</p>
+      <p class="tip">击落敌机 +100 · 收集星星 +50</p>
       <button id="start-btn" class="btn">开始游戏</button>
     </div>
   </div>
